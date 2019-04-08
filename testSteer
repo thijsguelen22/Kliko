@@ -1,0 +1,77 @@
+#!/usr/bin/python
+import cwiid
+import time
+import array
+import RPi.GPIO as GPIO
+
+#ser = serial.Serial('/dev/ttyUSB0')
+
+Motor1F = 2
+Motor1R = 3
+Motor2F = 4
+Motor2R = 14
+
+wiimote = cwiid.Wiimote()
+wiimote.rpt_mode = cwiid.RPT_ACC | cwiid.RPT_BTN
+
+GPIO.setmode(GPIO.BCM)
+GPIO.setwarnings(False)
+GPIO.setup(Motor1F,GPIO.OUT)
+GPIO.setup(Motor1R,GPIO.OUT)
+GPIO.setup(Motor2F,GPIO.OUT)
+GPIO.setup(Motor2R,GPIO.OUT)
+
+p1 = GPIO.PWM(Motor1F, 50)
+p2 = GPIO.PWM(Motor1R, 50)
+p3 = GPIO.PWM(Motor2F, 50)
+p4 = GPIO.PWM(Motor2R, 50)
+
+p1.start(0)
+p2.start(0)
+p3.start(0)
+p4.start(0)
+
+def allOff():
+  p1.ChangeDutyCycle(0)
+  p2.ChangeDutyCycle(0)
+  p3.ChangeDutyCycle(0)
+  p4.ChangeDutyCycle(0)
+
+xVar = 0
+
+while True:
+  btnVar = wiimote.state['buttons']
+  #print(wiimote.state['acc'][1])
+  print("X: " + str(wiimote.state['acc'][1]) + " b: " + str(wiimote.state['buttons']))
+  xVar = wiimote.state['acc'][1] - 96
+  xPerc = round((xVar * 2) * 0.95)
+  if xPerc > 100:
+    xPerc = 100
+  elif xPerc < 0:
+    xPerc = 0
+  x1 = 0
+  x2 = 0
+  if xPerc > 0 and xPerc < 50:
+    x1 = 100
+    x2 = xPerc
+  elif xPerc > 50 and xPerc < 100:
+    x1 = 100-xPerc
+    x2 = 100
+
+  if btnVar == 1:
+    print("xPerc * 0.95 is "+str(round(xPerc*0.95)))
+    p2.ChangeDutyCycle(0)
+    p4.ChangeDutyCycle(0)
+    p1.ChangeDutyCycle(x1)
+    p3.ChangeDutyCycle(x2)
+    print("xPerc - 1 is "+str(xPerc))
+  elif btnVar == 2:
+    p1.ChangeDutyCycle(0)
+    p3.ChangeDutyCycle(0)
+    p2.ChangeDutyCycle(100-xPerc)
+    p4.ChangeDutyCycle(xPerc)
+
+  elif btnVar == 0:
+    allOff()
+  else:
+    allOff()
