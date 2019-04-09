@@ -14,7 +14,14 @@ Motor2F = 4   #Motor 2 forward
 Motor2R = 14  #Motor 2 reverse
 
 #PWM frequentie in herz
-PWMFreq = 50
+PWMFreq = 100
+
+#Delay voor PWM opbouw/afbraak in ms
+PWMDelay = 1000
+PWMDelayCounter = 0;
+
+#Boolean of de opbouw curve al is uitgevoerd
+buildupPWM = false
 
 #Variabele voor de waarde van de X-as op de acceleratie meter
 xVar = 0
@@ -48,6 +55,13 @@ p2 = GPIO.PWM(Motor1R, PWMFreq)
 p3 = GPIO.PWM(Motor2F, PWMFreq)
 p4 = GPIO.PWM(Motor2R, PWMFreq)
 
+#Blanco PWM waarden voor de motors
+p1_val = 0
+p2_val = 0
+p3_val = 0
+p4_val = 0
+
+
 #Start het PWM signaal op een Duty cycle van 0%
 p1.start(0)
 p2.start(0)
@@ -66,6 +80,18 @@ def writeMotors(m1, m2, m3, m4):
   p2.ChangeDutyCycle(m2)
   p3.ChangeDutyCycle(m3)
   p4.ChangeDutyCycle(m4)
+  
+def workTowardsPWMUp(totalDelay, currentPWM):
+  ret = 0
+  basePerc = 100 - currentPWM
+  if PWMDelayCounter < totalDelay:
+    extraOptellen = totalPerc / totalDelay
+	ret = round(currentPWM + extraOptellen, 1)
+  else:
+    ret = currentPWM
+	
+  return ret
+
 
 while NoError == True:
   #Lees de knoppen van de remote uit
