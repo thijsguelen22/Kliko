@@ -98,7 +98,6 @@ while NoError == True:
 	#linker motor de helft van xPerc, rechter 100%
     x1 = 100-xPerc
     x2 = 100
-
   if btnVar == 1:
     #Als de 2-knop is ingedrukt : FORWARD
 	
