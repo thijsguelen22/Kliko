@@ -81,18 +81,42 @@ def writeMotors(m1, m2, m3, m4):
   p3.ChangeDutyCycle(m3)
   p4.ChangeDutyCycle(m4)
   
+#Ga van 0 naar 100% in in lineair verband
 def workTowardsPWMUp(totalDelay, currentPWM):
+  #initialiseer return variabele
   ret = 0
-  basePerc = 100 - currentPWM
+  
+  #kijk of we nog een keer moeten optellen
   if PWMDelayCounter < totalDelay:
+    #Tel er een stapje bij op, rond het af en geef het mee aan ret
     extraOptellen = totalPerc / totalDelay
 	ret = round(currentPWM + extraOptellen, 1)
   else:
+    #Zo niet, return meteen de huidige PWM
     ret = currentPWM
-	
+  return ret
+
+#Ga van 0 naar 100% met een boogje. Naarmate de 100% genaderd wordt elke iteratie minder optellen
+def workTowardsPWMUpCurve(totalDelay, currentPWM):
+  #initialiseer return variabele
+  ret = 0
+  
+  #Bereken het percentage dat we nog te gaan hebben
+  basePerc = 100 - currentPWM
+
+  #Als de timer nog niet over is
+  if PWMDelayCounter < totalDelay:
+    #Bereken wat we moeten optellen, tel dat op en rond het af
+    #Geef het vervolgens mee aan ret
+    extraOptellen = basePerc / totalDelay
+	ret = round(currentPWM + extraOptellen, 1)
+  else:
+    #Zo niet, return dan gelijk de huidige PWM
+    ret = currentPWM
   return ret
 
 
+#Zolang er geen errors ontstaan, doe loopen
 while NoError == True:
   #Lees de knoppen van de remote uit
   btnVar = wiimote.state['buttons']
